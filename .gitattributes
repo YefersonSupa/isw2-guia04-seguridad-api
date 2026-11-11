@@ -1,0 +1,23 @@
+# Normalización automática de saltos de línea
+* text=auto
+
+# Código fuente y documentación en LF
+*.py text eol=lf
+*.md text eol=lf
+*.tex text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.txt text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+# Scripts específicos de Windows en CRLF
+*.ps1 text eol=crlf
+
+# Archivos binarios
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary

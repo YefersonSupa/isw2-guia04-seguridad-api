@@ -1,0 +1,31 @@
+[1. POST /auth/register (rechaza role=admin)] -> HTTP 400
+  Respuesta: {"error": "Campos no permitidos en la solicitud."}
+[2. POST /auth/register (válido Argon2id)] -> HTTP 201
+  Respuesta: {"message": "Usuario registrado correctamente.", "user": {"email": "yeferson@unsaac.edu.pe", "full_name": "Yeferson Supa", "id": 1, "role": "estudiante"}}
+[3.1 POST /auth/login (intento fallido #1)] -> HTTP 401
+  Respuesta: {"error": "Credenciales inválidas."}
+[3.2 POST /auth/login (intento fallido #2)] -> HTTP 401
+  Respuesta: {"error": "Credenciales inválidas."}
+[3.3 POST /auth/login (intento fallido #3)] -> HTTP 429
+  Respuesta: {"error": "Demasiados intentos fallidos. Intente nuevamente más tarde.", "retry_after": 30}
+  Header Retry-After: 30s
+[4. POST /auth/login (exitoso post-bloqueo)] -> HTTP 200
+  Respuesta: {"access_token": "bRk9Hp5FxX...pp-wOM", "expires_at": 1700000331, "message": "Inicio de sesión exitoso.", "session_id": "MNkw_Ydfzlib9Kf2rohL-zXymCchMFrawXPZnbZ4PDQ", "user": {"email": "yeferson@unsaac.edu.pe", "full_name": "Yeferson Supa", "id": 1, "role": "estudiante"}}
+[5. POST /auth/login (regenera session_id e invalida previo)] -> HTTP 200
+  Respuesta: {"access_token": "l0X_DWNGpS...kRoOYs", "expires_at": 1700000331, "message": "Inicio de sesión exitoso.", "session_id": "F05eWkh9vJDHxLgmzzybcLA4diZGUSc78y5mE0rbfKs", "user": {"email": "yeferson@unsaac.edu.pe", "full_name": "Yeferson Supa", "id": 1, "role": "estudiante"}}
+[6. GET /auth/me (token previo invalidado)] -> HTTP 401
+  Respuesta: {"error": "Acceso no autorizado. Sesión inválida o expirada."}
+[7. POST /auth/forgot-password (emite token corto)] -> HTTP 200
+  Respuesta: {"message": "Si el correo se encuentra registrado, recibirá instrucciones de restablecimiento."}
+[8. POST /auth/reset-password (1er uso + revoca sesiones)] -> HTTP 200
+  Respuesta: {"message": "Contraseña restablecida correctamente."}
+[9. POST /auth/reset-password (rechaza reutilización)] -> HTTP 400
+  Respuesta: {"error": "Token de recuperación inválido o expirado."}
+[10. GET /auth/me (sesión revocada tras reset)] -> HTTP 401
+  Respuesta: {"error": "Acceso no autorizado. Sesión inválida o expirada."}
+
+[Bitácora audit_logs (últimos 4 eventos sin tokens expuestos)]
+  - PASSWORD_RESET_REJECTED | y***@unsaac.edu.pe | Intento con token inválido, expirado o reutilizado
+  - PASSWORD_RESET_COMPLETED | y***@unsaac.edu.pe | Contraseña restablecida con éxito y sesiones anteriores revocadas
+  - PASSWORD_RESET_REQUESTED | y***@unsaac.edu.pe | Token de un solo uso emitido con expiración corta (valor oculto en bitácora)
+  - LOGIN_SUCCESS | y***@unsaac.edu.pe | Sesión iniciada con nuevo identificador

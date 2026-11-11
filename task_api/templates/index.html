@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía 04 — API de Autenticación Segura (Equipo 05 | UNSAAC)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <div>
+                <span class="badge-institucional">UNSAAC · Ingeniería de Software II · Equipo 05</span>
+                <h1>Portal de Autenticación Segura — Proyecto Base (Guía 04)</h1>
+            </div>
+            <div class="security-pills">
+                <span class="pill">Argon2id</span>
+                <span class="pill">Bloqueo Progresivo</span>
+                <span class="pill">CSP 'self'</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container main-grid">
+        <!-- Columna izquierda: Formularios interactivos -->
+        <section class="card panel-left">
+            <nav class="tabs" aria-label="Operaciones de autenticación y tareas">
+                <button type="button" class="tab-btn active" data-tab="login">Iniciar Sesión</button>
+                <button type="button" class="tab-btn" data-tab="register">Registro</button>
+                <button type="button" class="tab-btn" data-tab="tasks">Mis Tareas</button>
+                <button type="button" class="tab-btn" data-tab="session">Mi Sesión / Clave</button>
+                <button type="button" class="tab-btn" data-tab="reset">Recuperar Clave</button>
+            </nav>
+
+            <!-- TAB 1: LOGIN -->
+            <div class="tab-pane active" id="tab-login">
+                <h2>Inicio de Sesión Seguro</h2>
+                <p class="hint">
+                    Verifica Argon2id, bloquea progresivamente tras 3 fallos por cuenta/IP (HTTP 429) y regenera el <code>session_id</code>.
+                </p>
+                <form id="form-login" class="form-stack">
+                    <label>
+                        Correo institucional
+                        <input type="email" id="login-email" required placeholder="usuario@unsaac.edu.pe">
+                    </label>
+                    <label>
+                        Contraseña
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </label>
+                    <div class="btn-row">
+                        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                        <button type="button" id="btn-bruteforce-demo" class="btn btn-warn">
+                            Simular 3 fallos (Fuerza Bruta)
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB 2: REGISTRO -->
+            <div class="tab-pane" id="tab-register">
+                <h2>Registro de Usuario</h2>
+                <p class="hint">
+                    Almacena la clave con Argon2id y asigna el rol mínimo <code>estudiante</code>. Rechaza campos extra como <code>role: "admin"</code>.
+                </p>
+                <form id="form-register" class="form-stack">
+                    <label>
+                        Nombre completo
+                        <input type="text" id="reg-name" required minlength="3" maxlength="100" placeholder="Yeferson Supa">
+                    </label>
+                    <label>
+                        Correo electrónico
+                        <input type="email" id="reg-email" required placeholder="yeferson@unsaac.edu.pe">
+                    </label>
+                    <label>
+                        Contraseña (mín. 8 chars, mayúscula, minúscula y dígito)
+                        <input type="password" id="reg-password" required minlength="8" placeholder="ClaveSegura123">
+                    </label>
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="reg-simulate-escalation">
+                        <span>Simular ataque de escalación (enviar <code>role: "admin"</code>)</span>
+                    </label>
+                    <button type="submit" class="btn btn-primary">Registrar Usuario</button>
+                </form>
+            </div>
+
+            <!-- TAB 2B: GESTIÓN DE TAREAS (CRUD + BÚSQUEDA SEGURA) -->
+            <div class="tab-pane" id="tab-tasks">
+                <h2>Gestión Segura de Tareas</h2>
+                <p class="hint">
+                    Requiere sesión activa. Aplica validación positiva, consultas SQL parametrizadas y control de propiedad (HTTP 403 ante IDOR).
+                </p>
+                <form id="form-task-create" class="form-stack">
+                    <label>
+                        Título (3 a 120 caracteres)
+                        <input type="text" id="task-title" required minlength="3" maxlength="120" placeholder="Implementar modelado STRIDE">
+                    </label>
+                    <label>
+                        Descripción (opcional, máx. 1000 caracteres)
+                        <input type="text" id="task-desc" maxlength="1000" placeholder="Documentar límites de confianza y controles">
+                    </label>
+                    <label>
+                        Estado
+                        <select id="task-status">
+                            <option value="pendiente">pendiente</option>
+                            <option value="en_progreso">en_progreso</option>
+                            <option value="completada">completada</option>
+                        </select>
+                    </label>
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="task-simulate-extra">
+                        <span>Simular inyección de campo no permitido (<code>owner_id: 999</code>)</span>
+                    </label>
+                    <button type="submit" class="btn btn-primary">Crear Tarea</button>
+                </form>
+
+                <hr class="divider">
+
+                <form id="form-task-search" class="btn-row">
+                    <input type="text" id="task-search-input" class="flex-input" placeholder="Buscar por título (parametrizado)...">
+                    <button type="submit" class="btn btn-secondary">Buscar / Listar</button>
+                </form>
+
+                <div id="tasks-list" class="tasks-list">
+                    <p class="empty-msg">Inicia sesión y presiona "Buscar / Listar" para ver tus tareas.</p>
+                </div>
+            </div>
+
+            <!-- TAB 3: SESIÓN ACTIVA Y CAMBIO DE CLAVE -->
+            <div class="tab-pane" id="tab-session">
+                <h2>Gestión de Sesión Activa</h2>
+                <p class="hint">
+                    Valida el token Bearer en servidor, permite cerrar sesión o cambiar la contraseña (revocando todas las sesiones previas).
+                </p>
+                <div class="btn-row">
+                    <button type="button" id="btn-check-me" class="btn btn-secondary">Consultar /auth/me</button>
+                    <button type="button" id="btn-logout" class="btn btn-danger">Cerrar Sesión (Logout)</button>
+                </div>
+
+                <hr class="divider">
+
+                <h3>Cambiar Contraseña</h3>
+                <form id="form-change-password" class="form-stack">
+                    <label>
+                        Contraseña actual
+                        <input type="password" id="chg-current" required placeholder="••••••••">
+                    </label>
+                    <label>
+                        Nueva contraseña
+                        <input type="password" id="chg-new" required minlength="8" placeholder="NuevaClaveSegura456">
+                    </label>
+                    <button type="submit" class="btn btn-primary">Actualizar y Revocar Sesiones</button>
+                </form>
+            </div>
+
+            <!-- TAB 4: RECUPERACIÓN DE CONTRASEÑA -->
+            <div class="tab-pane" id="tab-reset">
+                <h2>Recuperación de Contraseña</h2>
+                <p class="hint">
+                    Solicita un token aleatorio de un solo uso con expiración corta (impreso en consola del servidor local, nunca expuesto en HTTP ni logs).
+                </p>
+                <form id="form-forgot" class="form-stack">
+                    <label>
+                        Correo registrado
+                        <input type="email" id="forgot-email" required placeholder="yeferson@unsaac.edu.pe">
+                    </label>
+                    <button type="submit" class="btn btn-secondary">Solicitar Token de Recuperación</button>
+                </form>
+
+                <hr class="divider">
+
+                <h3>Confirmar Restablecimiento</h3>
+                <form id="form-reset" class="form-stack">
+                    <label>
+                        Token recibido (un solo uso)
+                        <input type="text" id="reset-token" required placeholder="Pega aquí el token de la consola del servidor">
+                    </label>
+                    <label>
+                        Nueva contraseña
+                        <input type="password" id="reset-password" required minlength="8" placeholder="OtraClaveValida789">
+                    </label>
+                    <button type="submit" class="btn btn-primary">Restablecer Contraseña</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Columna derecha: Estado de sesión + Inspector HTTP -->
+        <aside class="panel-right">
+            <section class="card session-card">
+                <div class="card-header-row">
+                    <h2>Estado de Sesión Actual</h2>
+                    <span id="session-badge" class="status-badge status-idle">Sin sesión activa</span>
+                </div>
+                <dl class="session-meta">
+                    <div>
+                        <dt>Usuario</dt>
+                        <dd id="meta-user">—</dd>
+                    </div>
+                    <div>
+                        <dt>Rol</dt>
+                        <dd id="meta-role">—</dd>
+                    </div>
+                    <div>
+                        <dt>Session ID</dt>
+                        <dd id="meta-session-id" class="mono">—</dd>
+                    </div>
+                    <div>
+                        <dt>Token en memoria</dt>
+                        <dd id="meta-token" class="mono">—</dd>
+                    </div>
+                </dl>
+                <p class="micro-note">
+                    El token Bearer se conserva solo en memoria JS (no en <code>localStorage</code>) para mitigar exposición ante XSS.
+                </p>
+            </section>
+
+            <section class="card inspector-card">
+                <div class="card-header-row">
+                    <h2>Inspector HTTP en Vivo</h2>
+                    <button type="button" id="btn-clear-log" class="btn-link">Limpiar</button>
+                </div>
+                <div id="http-alert" class="http-alert hidden"></div>
+                <div id="http-history" class="http-history">
+                    <p class="empty-msg">Ejecuta cualquier operación para inspeccionar el código HTTP y la respuesta JSON del servidor.</p>
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
