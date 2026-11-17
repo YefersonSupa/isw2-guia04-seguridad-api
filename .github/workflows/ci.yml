@@ -28,8 +28,8 @@ jobs:
       - name: Run automated security and unit tests (pytest)
         run: pytest -v
 
-      - name: Run SAST vulnerability scan (bandit)
-        run: bandit -r task_api
+      - name: Run SAST vulnerability scan on production code (bandit)
+        run: bandit -r sportreserve/app_segura.py sportreserve/init_db.py task_api --exclude task_api/vulnerable_examples.py
 
-      - name: Run static code quality analysis (pylint)
-        run: pylint task_api
+      - name: Run static code quality analysis on production code (pylint)
+        run: pylint sportreserve/app_segura.py sportreserve/init_db.py task_api --ignore=vulnerable_examples.py

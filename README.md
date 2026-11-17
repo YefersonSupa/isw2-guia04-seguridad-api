@@ -8,7 +8,7 @@
 [![Pylint 10.00/10](https://img.shields.io/badge/Pylint-10.00%2F10-198754)](https://pylint.readthedocs.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-8C1D22)](LICENSE)
 
-Implementación segura de una **API RESTful + Frontend Web** de gestión de tareas en **Python/Flask + SQLite3**, desarrollada como proyecto base, bitácora técnica y entregable de las **Actividades 1 y 2** de la *Guía de Práctica 04: Ingeniería de software seguro* de **Ingeniería de Software II** (UNSAAC — Equipo 05).
+Implementación segura de una **API RESTful + Frontend Web** de gestión de tareas en **Python/Flask + SQLite3** y hardening completo del caso **SportReserve Co.** (`app_vulnerable.py` → `app_segura.py`), desarrollada como entregable integral de las **Actividades 1, 2, 3 y 4** de la *Guía de Práctica 04: Ingeniería de software seguro* de **Ingeniería de Software II** (UNSAAC — Equipo 05).
 
 ---
 
@@ -103,20 +103,21 @@ Abre tu navegador en **`http://127.0.0.1:5000/`** para utilizar la interfaz grá
 # Ejecutar suite completa de pruebas unitarias y negativas
 pytest -v
 
-# Ejecutar análisis estático de vulnerabilidades (SAST)
-bandit -r task_api
+# Ejecutar análisis estático de vulnerabilidades (SAST) en producción
+bandit -r sportreserve/app_segura.py sportreserve/init_db.py task_api --exclude task_api/vulnerable_examples.py
 
 # Verificar calidad estática y estilo de código
-pylint task_api
+pylint sportreserve/app_segura.py sportreserve/init_db.py task_api --ignore=vulnerable_examples.py
 
-# Ejecutar demostración HTTP end-to-end en consola
-python scripts/run_http_demo.py
+# Ejecutar verificación comparativa Antes vs. Después (Actividades 3 y 4)
+python scripts/run_act34_verification.py
 ```
 
 ### Evidencias Verificadas
-- **`pytest -v`:** **9/9 pruebas aprobadas** (`tests/test_auth_security.py` y `tests/test_tasks_security.py`).
-- **`bandit -r task_api`:** **0 vulnerabilidades detectadas** (`High/Medium/Low = 0` en 1078 líneas analizadas).
-- **`pylint task_api`:** **10.00 / 10**.
+- **`pytest -v`:** **14/14 pruebas aprobadas** (`test_auth_security.py`, `test_sportreserve_security.py` y `test_tasks_security.py`).
+- **`bandit` (Código vulnerable Act. 3):** **3 alertas `B608` (CWE-89 SQLi)** en `app_vulnerable.py:31,52` y `vulnerable_examples.py:61`.
+- **`bandit` (Código seguro Act. 4):** **0 vulnerabilidades detectadas** (`High/Medium/Low = 0` en 1251 líneas analizadas).
+- **`pylint` (Código seguro Act. 4):** **10.00 / 10**.
 
 ---
 
@@ -131,20 +132,28 @@ isw2-guia04-seguridad-api/
 ├── pyproject.toml                  # Configuración de pytest, pylint y bandit
 ├── requirements.txt                # Dependencias reproducibles
 ├── README.md                       # Documentación principal del proyecto
-├── docs/                           # Documentación técnica (STRIDE, PxI, RE/RF/RS)
+├── docs/                           # Documentación técnica (STRIDE, PxI, RE/RF/RS, SAST, RBAC)
 │   ├── 01_arquitectura_y_stride.md
-│   └── 02_requisitos_y_trazabilidad.md
-├── task_api/                       # Código fuente modular (API + Frontend)
+│   ├── 02_requisitos_y_trazabilidad.md
+│   ├── 03_sast_y_hardening.md
+│   └── 04_metacognicion_y_reto.md
+├── sportreserve/                   # Caso Práctico 01: SportReserve Co. (Act. 3 y 4)
+│   ├── init_db.py                  # Esquema y datos semilla (reservas id=104 y 105)
+│   ├── app_vulnerable.py           # Versión base vulnerable para diagnóstico SAST
+│   └── app_segura.py               # Versión refactorizada (SQLi, IDOR 403, XSS + CSP)
+├── task_api/                       # Código fuente modular (API + Frontend + Ej. 1.2, 3.1, 4.1)
 │   ├── __init__.py
 │   ├── app.py                      # App Flask, rutas REST, frontend y cabeceras CSP
 │   ├── db.py                       # Conexión y esquema SQLite3 parametrizado
 │   ├── security.py                 # Argon2id, tokens 256-bit, rate-limit y auditoría
 │   ├── auth_service.py             # Registro, login, logout, cambio y reset de clave
-│   ├── tasks_service.py            # CRUD de tareas con validación y control IDOR
+│   ├── tasks_service.py            # CRUD de tareas con validación, RBAC y control IDOR
+│   ├── vulnerable_examples.py      # Contraste educativo 'Antes' (Ej. 3.1 y 4.1)
 │   ├── templates/index.html        # Interfaz web HTML5
 │   └── static/                     # Hoja de estilos CSS y cliente JS sin inline scripts
-├── tests/                          # Pruebas unitarias, de integración y negativas
+├── tests/                          # Pruebas unitarias, de integración y negativas (14 tests)
 │   ├── test_auth_security.py
+│   ├── test_sportreserve_security.py
 │   └── test_tasks_security.py
 ├── scripts/                        # Demostración HTTP y generadores de diagramas
 │   ├── run_http_demo.py
@@ -164,6 +173,8 @@ isw2-guia04-seguridad-api/
 
 - [Arquitectura, Modelado STRIDE y Riesgos P×I](docs/01_arquitectura_y_stride.md)
 - [Requisitos Verificables y Matriz de Trazabilidad](docs/02_requisitos_y_trazabilidad.md)
+- [Diagnóstico SAST, Validación y Hardening (Actividades 3 y 4)](docs/03_sast_y_hardening.md)
+- [Análisis Metacognitivo, Reto RBAC y Resultados](docs/04_metacognicion_y_reto.md)
 - [Informe Técnico en LaTeX (UNSAAC)](informe/main.tex)
 - **Bitácora Digital en Google Drive (Equipo 05):** [Carpeta Institucional](https://drive.google.com/drive/folders/1S-F9LnMze7nOk9m7HgX4QdU20abIEQLo?usp=sharing)
 

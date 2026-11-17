@@ -155,7 +155,7 @@ def list_tasks(
     escaped_term = term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
     like_pattern = f"%{escaped_term}%"
 
-    if session["role"] == "administrador":
+    if session["role"] in {"administrador", "docente"}:
         rows = conn.execute(
             """
             SELECT id, title, description, status, owner_id, created_at

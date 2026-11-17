@@ -1,0 +1,25 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.5, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\yefer\Desktop\Decimo-Semestre\Ingeniería_SoftwwareII\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\yefer\Desktop\Decimo-Semestre\Ingeniería_SoftwwareII\Laboratorios\Guia04
+configfile: pyproject.toml
+testpaths: tests
+plugins: platformdirs-4.14.5
+collecting ... collected 14 items
+
+tests/test_auth_security.py::test_register_uses_argon2id_and_blocks_privilege_escalation PASSED [  7%]
+tests/test_auth_security.py::test_invalid_credentials_return_generic_error_without_enumeration PASSED [ 14%]
+tests/test_auth_security.py::test_brute_force_progressive_lockout_by_account_and_ip PASSED [ 21%]
+tests/test_auth_security.py::test_session_regeneration_expiration_and_logout PASSED [ 28%]
+tests/test_auth_security.py::test_change_password_revokes_all_active_sessions PASSED [ 35%]
+tests/test_auth_security.py::test_password_reset_single_use_invalidation_expiration_and_safe_logs PASSED [ 42%]
+tests/test_auth_security.py::test_frontend_index_and_security_headers PASSED [ 50%]
+tests/test_sportreserve_security.py::test_app_vulnerable_exposes_idor_sqli_and_xss PASSED [ 57%]
+tests/test_sportreserve_security.py::test_app_segura_mitigates_idor_sqli_xss_and_invalid_inputs PASSED [ 64%]
+tests/test_tasks_security.py::test_vulnerable_tasks_before_hardening PASSED [ 71%]
+tests/test_tasks_security.py::test_create_task_validation_extra_fields_and_safe_logs PASSED [ 78%]
+tests/test_tasks_security.py::test_tasks_idor_protection_and_parameterized_search PASSED [ 85%]
+tests/test_tasks_security.py::test_rbac_roles_student_teacher_admin PASSED [ 92%]
+tests/test_tasks_security.py::test_no_sql_concatenation_in_production_modules PASSED [100%]
+
+============================= 14 passed in 3.36s ==============================

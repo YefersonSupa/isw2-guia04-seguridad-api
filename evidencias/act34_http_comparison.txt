@@ -1,0 +1,19 @@
+=== CASO PRÁCTICO 01: SPORTRESERVE CO. (ANTES vs DESPUÉS) ===
+[Hallazgo A - IDOR] GET /api/reserva?id=105&user_id=1
+  ANTES  (app_vulnerable.py): HTTP 200 -> EXPONE reserva de User_B (owner=2)
+  DESPUÉS(app_segura.py)    : HTTP 403 -> {"error": "Acceso denegado: la reserva pertenece a otro usuario."}
+[Hallazgo B - SQLi] GET /api/usuarios/buscar?correo=' OR '1'='1
+  ANTES  (app_vulnerable.py): HTTP 200 -> FILTRA 3 usuarios completos
+  DESPUÉS(app_segura.py)    : HTTP 400 -> {"error": "Formato de correo electrónico inválido"}
+[Hallazgo C - XSS]  GET /comentarios?nombre=<script>alert(1)</script>
+  ANTES  (app_vulnerable.py): HTTP 200 -> <script> crudo inyectado=True
+  DESPUÉS(app_segura.py)    : HTTP 200 -> escapado=True | CSP=default-src 'self'; script-src 'none'; object-src 'none'; frame-ancestors 'none'
+
+=== EJERCICIOS 3.1 y 4.1: API TAREAS (VALIDACIÓN + SQLi + IDOR) ===
+[Ej. 3.1 Validación] POST /tasks con campo extra role='admin'
+  ANTES  (/vulnerable/tasks): HTTP 201 -> aceptó título vacío y role='admin'
+  DESPUÉS(/tasks)           : HTTP 400 -> {"error": "Campos no permitidos en la solicitud."}
+  DESPUÉS(/tasks válido)    : HTTP 201 -> id=1
+[Ej. 4.1 Búsqueda]  GET /tasks?search=x%' OR 1=1 --
+  ANTES  (/vulnerable/search): HTTP 200 -> SQLi expone 2 tareas
+  DESPUÉS(/tasks?search=...) : HTTP 400 -> {"error": "El parámetro de búsqueda contiene caracteres o longitud inválidos."}

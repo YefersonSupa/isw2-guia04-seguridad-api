@@ -1,0 +1,62 @@
+=== BANDIT SAST (CÓDIGO VULNERABLE: app_vulnerable.py & vulnerable_examples.py) ===
+Run started:2026-11-17 19:59:37.105708+00:00
+
+Test results:
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: .\sportreserve/app_vulnerable.py:31:12
+30	    # Inseguro: Concatenación directa de entradas en la consulta SQL (SQLi)
+31	    query = f"SELECT * FROM reservas WHERE id = {id_reserva}"
+32	    reserva = cursor.execute(query).fetchone()
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: .\sportreserve/app_vulnerable.py:52:12
+51	    # Inseguro: Concatenación directa sin parametrización
+52	    query = "SELECT id, nombre, correo, telefono FROM usuarios WHERE correo = '" + correo + "'"
+53	    filas = cursor.execute(query).fetchall()
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: .\task_api/vulnerable_examples.py:61:16
+60	        # Código inseguro literal de la Guía 04 (pág. 11)
+61	        query = "SELECT * FROM tasks WHERE title LIKE '%" + search + "%'"
+62	        rows = cursor.execute(query).fetchall()
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 121
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 0
+		Medium: 3
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 3
+		Medium: 0
+		High: 0
+Files skipped (0):
+
+=== PYLINT (app_vulnerable.py) ===
+************* Module sportreserve.app_vulnerable
+sportreserve\app_vulnerable.py:16:0: C0116: Missing function or method docstring (missing-function-docstring)
+sportreserve\app_vulnerable.py:24:0: C0116: Missing function or method docstring (missing-function-docstring)
+sportreserve\app_vulnerable.py:47:0: C0116: Missing function or method docstring (missing-function-docstring)
+sportreserve\app_vulnerable.py:60:0: C0116: Missing function or method docstring (missing-function-docstring)
+
+-----------------------------------
+Your code has been rated at 9.20/10

@@ -44,3 +44,4 @@ Documentación técnica de la **Actividad 2** y **Ejercicio Propuesto 2.1** de l
 | **RF-08** | Eliminar tarea | Tareas / Registros | RS-02, RS-03 | Propiedad + log `TASK_DELETED` | `test_tasks_idor_protection_and_parameterized_search` (`HTTP 403`) |
 | **RF-09** | Adjuntar archivo a tarea | Archivos | RS-09, RS-02 | Validación MIME/tamaño (diseño) | Escenario negativo `HTTP 400 / 413` |
 | **RF-10** | Auditar eventos y roles | Registros / Roles | RS-03, RS-07 | `audit_logs` sin tokens ni secretos | Verificado en `tests/test_auth_security.py` y `test_tasks_security.py` |
+

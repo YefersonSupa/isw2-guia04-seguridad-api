@@ -1,0 +1,27 @@
+=== BANDIT SAST (CÓDIGO SEGURO: app_segura.py & task_api/) ===
+Run started:2026-11-17 19:59:40.615329+00:00
+
+Test results:
+	No issues identified.
+
+Code scanned:
+	Total lines of code: 1251
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 0
+		Medium: 0
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 0
+		High: 0
+Files skipped (0):
+
+=== PYLINT (app_segura.py, init_db.py & task_api/) ===
+-------------------------------------------------------------------
+Your code has been rated at 10.00/10 (previous run: 9.96/10, +0.04)

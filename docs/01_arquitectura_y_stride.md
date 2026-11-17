@@ -35,3 +35,4 @@ Escala de evaluación: `1–4: Bajo` | `5–9: Medio` | `10–16: Alto` | `17–
 3. **T3 — Divulgación de tareas ajenas / IDOR (`4×4 = 16 Alto`):** Filtrado por `owner_id` en consultas y verificación de propiedad en servidor (`HTTP 403 Forbidden`).
 4. **T4 — Fuerza bruta y agotamiento de recursos (`5×3 = 15 Alto`):** Bloqueo temporal progresivo por cuenta e IP (`HTTP 429` + `Retry-After`) y límite `MAX_CONTENT_LENGTH` (`16 KiB`).
 5. **T5 — Repudio / eliminación sin registro (`3×4 = 12 Alto`):** Bitácora inmutable `audit_logs` con eventos de autenticación, validación fallida y eliminación sin exponer secretos.
+
